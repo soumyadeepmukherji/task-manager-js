@@ -19,35 +19,57 @@ function addTask(){
     }
     tasks.push(task);
     saveTasks();
+    renderTask();
     console.log(tasks)
     taskInput.value = "";
     priority.selectedIndex = 0;
     taskInput.focus()
 }
 
-function saveTasks(){
-    console.log('stored')
-    localStorage.setItem("tasks", JSON.stringify(tasks))
+function saveTasks() {
+    console.log("saved");
+    localStorage.setItem("tasks", JSON.stringify(tasks));
 }
 
-function renderTask(){
-    console.log(JSON.stringify(tasks))
-    tasks.forEach((task,index) => {
-    table.innerHTML += `<tr>
-        <td>${count += 1 }</td>
-        <td>${val}</td>
-        <td>${choise}</td>
-        <td> 
-            <button class="clr">remove</button>
-        </td>
-    </tr> `;
-    })
+function renderTask() {
+    table.innerHTML = "";
+
+    tasks.forEach((task, index) => {
+        table.innerHTML += `
+        <tr>
+            <td>${index + 1}</td>
+            <td>${task.taskName}</td>
+            <td>${task.priority}</td>
+            <td>
+                <button class="clr">Remove</button>
+            </td>
+        </tr>`;
+
+    });
+
 }
 
-renderTask()
+function deletTask(){
+    if(e.target.classList.contains('clr')){
+        var conf = confirm('Are you sure you want to delete ?')
+        if(conf === true){
+            e.target.closest('tr').remove()
+        }
 
-function loadTask(){
-    const storedValue = localStorage.getItem(tasks)
-    tasks = JSON.parse(storedValue)
+        const allRows = targetElem.querySelectorAll('tr');
+        console.log(allRows)
+        allRows.forEach((row, index) => {
+            row.querySelector('td:first-child').textContent = index + 1;
+        });
+
+        count = allRows.length;
+    }
 }
-loadTask()
+
+(function loadTask() {
+    const storedValue = localStorage.getItem("tasks");
+    if (storedValue) {
+        tasks = JSON.parse(storedValue);
+    }
+    renderTask();
+})();
