@@ -2,6 +2,7 @@
 const addBtn = document.getElementById('addBtn')
 const taskInput = document.getElementById('taskInput')
 const priority = document.getElementById('priority')
+const filterPriority = document.getElementById("filterPriority");
 
 const table = document.querySelector('tbody')
 
@@ -38,10 +39,10 @@ function saveTasks() {
 }
 
 
-function renderTask() {
+function renderTask(taskList = tasks) {
     table.innerHTML = "";
 
-    tasks.forEach((task, index) => {
+    taskList.forEach((task, index) => {
         table.innerHTML += `
         <tr>
             <td>${index + 1}</td>
@@ -106,6 +107,27 @@ function updateTask() {
     addBtn.textContent = "Add Task";
 }
 
+
+// Filter
+filterPriority.addEventListener("change", () => {
+
+    const selectedPriority = filterPriority.value;
+
+    // Show all tasks
+    if (selectedPriority === "All") {
+        renderTask();
+        return;
+    }
+
+    // Filter tasks
+    const filteredTasks = tasks.filter(task => {
+        return task.priority === selectedPriority;
+    });
+
+    // console.log(filteredTasks)
+    renderTask(filteredTasks);
+
+});
 
 // Remove task
 table.addEventListener("click", (e) => {
