@@ -6,18 +6,23 @@ const priority = document.getElementById('priority')
 const table = document.querySelector('tbody')
 
 let tasks = []
-let count = 0
+let editingId = null;
 
+// Add Task
 function addTask(){
     let val = taskInput.value 
     let choise = priority.value
 
+    if(editingId === null) {
     const task = {
-        id: count + 1,
+        id: tasks.length + 1,
         taskName: val,
         priority: choise
     }
     tasks.push(task);
+    } else {
+        updateTask()
+    }
     saveTasks();
     renderTask();
     console.log(tasks)
@@ -26,10 +31,12 @@ function addTask(){
     taskInput.focus()
 }
 
+// Save the task on Local Storage
 function saveTasks() {
     console.log("saved");
     localStorage.setItem("tasks", JSON.stringify(tasks));
 }
+
 
 function renderTask() {
     table.innerHTML = "";
@@ -41,7 +48,8 @@ function renderTask() {
             <td>${task.taskName}</td>
             <td>${task.priority}</td>
             <td>
-                <button class="clr">Remove</button>
+                <button class="edit" data-id ="${task.id}">Update</button>
+                <button class="clr" data-id ="${task.id}">Remove</button>
             </td>
         </tr>`;
 
@@ -49,23 +57,8 @@ function renderTask() {
 
 }
 
-function deletTask(){
-    if(e.target.classList.contains('clr')){
-        var conf = confirm('Are you sure you want to delete ?')
-        if(conf === true){
-            e.target.closest('tr').remove()
-        }
 
-        const allRows = targetElem.querySelectorAll('tr');
-        console.log(allRows)
-        allRows.forEach((row, index) => {
-            row.querySelector('td:first-child').textContent = index + 1;
-        });
-
-        count = allRows.length;
-    }
-}
-
+// Render what is there in Localstorage
 (function loadTask() {
     const storedValue = localStorage.getItem("tasks");
     if (storedValue) {
@@ -73,3 +66,64 @@ function deletTask(){
     }
     renderTask();
 })();
+
+// Edit
+table.addEventListener("click", (e) => {
+
+    if (e.target.classList.contains("edit")) {
+
+        const id = Number(e.target.dataset.id);
+
+        const task = tasks.find(task => task.id === id);
+
+        taskInput.value = task.taskName;
+        priority.value = task.priority;
+
+        editingId = id;
+
+        console.log(editingId)
+
+        addBtn.textContent = "Update Task";
+    }
+
+});
+
+// Update
+function updateTask() {
+
+    const val = taskInput.value;
+    const choice = priority.value;
+
+    const task = tasks.find(task => task.id === editingId);
+
+    if (!task) return;
+
+    task.taskName = val;
+    task.priority = choice;
+
+    editingId = null;
+
+    addBtn.textContent = "Add Task";
+}
+
+
+// Remove task
+table.addEventListener("click", (e) => {
+    if(e.target.classList.contains('clr')){
+        const answer = confirm('Are you sure?')
+        
+        if(answer !== true) {
+            return;
+        }
+
+        const id = Number(e.target.dataset.id)
+        console.log(typeof id)
+
+
+        tasks = tasks.filter((task) => task.id !== id )
+
+        saveTasks()
+
+        renderTask()
+    }
+})
